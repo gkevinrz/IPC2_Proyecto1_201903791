@@ -26,3 +26,12 @@ class ListaPisos():
 
 
 
+    def mostrarPisos(self):
+
+        temp=self.Inicio
+        print('  Pisos Disponibles  ')
+        print('|--------------------|')
+        while temp is not None:
+            print('Nombre: ',temp.nombre)
+            temp=temp.siguiente
+        print('')
