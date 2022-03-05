@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<pisosArtesanales>
+<piso nombre="Prueba4">
+<R> 2 </R>
+<C> 4 </C>
+<F> 1 </F>
+<S> 1 </S>
+<patrones>
+<patron codigo="Rbol">
+WBWBWWWB
+</patron>
+<patron codigo="Aasa">
+BWBWWWWW
+</patron>
+<patron codigo="Baro">
+BWBWWBBB
+</patron>
+</patrones>
+</piso>
+<piso nombre="Prueba1">
+<R> 3 </R>
+<C> 3 </C>
+<F> 1 </F>
+<S> 1 </S>
+<patrones>
+<patron codigo="cod21">
+WBBBWBWWW
+</patron>
+<patron codigo="cod22">
+WWWWBWWWB
+</patron>
+</patrones>
+</piso>
+<piso nombre="Prueba5">
+<R> 1 </R>
+<C> 5 </C>
+<F> 1000 </F>
+<S> 1 </S>
+<patrones>
+<patron codigo="cod31">
+WBBBB
+</patron>
+<patron codigo="cod32">
+BBBWW
+</patron>
+</patrones>
+</piso>
+</pisosArtesanales>
