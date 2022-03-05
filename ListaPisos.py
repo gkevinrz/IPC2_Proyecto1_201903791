@@ -35,3 +35,32 @@ class ListaPisos():
             print('Nombre: ',temp.nombre)
             temp=temp.siguiente
         print('')
+
+    def ord(self):
+        if self.size > 1:
+            while True:
+                actual = self.Inicio
+                i = None  # anterior
+                j = self.Inicio.siguiente  # siguiente
+                cambio = False
+                while j != None:
+                    if actual.nombre > j.nombre:
+                        cambio = True
+                        if i != None:
+                            tmp = j.siguiente
+                            i.siguiente = j
+                            j.siguiente = actual
+                            actual.siguiente = tmp
+                        else:
+                            tmp2 = j.siguiente
+                            self.Inicio = j
+                            j.siguiente = actual
+                            actual.siguiente = tmp2
+                        i = j
+                        j = actual.siguiente
+                    else:
+                        i = actual
+                        actual = j
+                        j = j.siguiente
+                if not cambio:
+                    break

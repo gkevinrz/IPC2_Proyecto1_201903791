@@ -32,6 +32,7 @@ class Main():
                 ruta_archivo=input('Ruta del Archivo: \n > ')
                 self.CargarArchivo(ruta_archivo)
             elif Opcion=='2':
+                self.ListaPisos.ord()
                 self.ListaPisos.mostrarPisos()
                 OpcionPiso=input('Escriba el nombre del piso: \n > ')
                 print('\nPiso '+OpcionPiso+' seleccionado')
@@ -43,10 +44,17 @@ class Main():
                 #pisoelegido.Matriz.imprimirColumnas()
                 #print('--------------------------------')
                 #pisoelegido.Matriz.imprimirFilas()
+                #pisoelegido.ListaPatrones.mostrarPatrones()
+                pisoelegido.ListaPatrones.ordenar()
                 pisoelegido.ListaPatrones.mostrarPatrones()
                 OpcionPatron=input('Escriba el código del patrón nuevo:\n> ')
                 patronelegido=pisoelegido.ListaPatrones.getPatron(OpcionPatron)
                 self.Procesar(pisoelegido,patronelegido)
+            elif Opcion=='5':
+                pisoelegidograf=self.ListaPisos.getPiso(OpcionPiso)
+                self.graficar_final(pisoelegidograf,patronelegido)
+                
+
 
     def CargarArchivo(self,ruta):
         tree = ET.parse(ruta)
@@ -95,30 +103,249 @@ class Main():
 
     def Procesar(self,pisoelegido,patronnuevo):
         pisoElegido=pisoelegido
+        pisoElegido.ListaPatrones.Inicio.Estado=False
         nuevoPatron=patronnuevo
         x=1
+        log=''
+        costo=0
+        ac=0
         for i in range(pisoElegido.filas):
             for j in range(pisoElegido.columnas):
                 if pisoElegido.Matriz.getNodo(i,j).Estado==0 and nuevoPatron.string_patron[x]=='W':
-                    print('si')
-                elif pisoElegido.Matriz.getNodo(i,j).Estado==1 and nuevoPatron.string_patron[x]=='B':
-                    print('si')
-                else:
-                    print('no')
+                    #print(pisoElegido.Matriz.getNodo(i,j).Estado)
+                   #print(nuevoPatron.string_patron[x])
+                    log+="""No hay movimiento en la casilla actual\n"""
+                    
+                elif pisoElegido.Matriz.getNodo(i,j).Estado==1 and nuevoPatron.string_patron[x]=='B': 
+                    #print(nuevoPatron.string_patron[x])           
+                    log+="""No hay movimiento en la casilla actual\n"""
+                elif pisoElegido.Matriz.getNodo(i,j).Estado==0 and nuevoPatron.string_patron[x]=='B':
+                    if pisoElegido.costo_voltear<pisoelegido.costo_cambiar:
+                        costo=costo+pisoElegido.costo_voltear
+                        log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                        pisoElegido.Matriz.getNodo(i,j).Estado=1
+                    elif pisoElegido.costo_cambiar<pisoElegido.costo_voltear:
+                        
+                        if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j) is not None:
+                            if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la derecha ({i,j+1})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i+1,j).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0 and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                             
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                            
+                        else:
+                            if pisoElegido.Matriz.getNodo(i+1,j) is None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                print('estoy aqui2')
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de la derecha ({i,j+1})\n"""
+                         
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and  pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i+1,).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""    
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is None:
+                                costo=costo+pisoElegido.costo_voltear
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                #print('s')
+                    elif pisoElegido.costo_voltear==pisoelegido.costo_cambiar:
+                        if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j) is not None:
+                            if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la derecha ({i,j+1})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i+1,j).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0 and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                             
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                        else:
+                            if pisoElegido.Matriz.getNodo(i+1,j) is None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                print('estoy aqui2')
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de la derecha ({i,j+1})\n"""
+                         
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and  pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                pisoElegido.Matriz.getNodo(i+1,j).Estado=0
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""    
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is None:
+                                costo=costo+pisoElegido.costo_voltear
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                                pisoElegido.Matriz.getNodo(i,j).Estado=1
+
+
+
+                elif pisoElegido.Matriz.getNodo(i,j).Estado==1 and nuevoPatron.string_patron[x]=='W':
+                    if pisoElegido.costo_voltear<pisoElegido.costo_cambiar:
+                        costo=costo+pisoElegido.costo_voltear
+                        log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                        pisoElegido.Matriz.getNodo(i,j).Estado=0
+                    elif pisoElegido.costo_cambiar<pisoElegido.costo_voltear:
+                        if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j) is not None:
+                            if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la derecha ({i,j+1})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i+1,j).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1 and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                        else:
+                            if pisoElegido.Matriz.getNodo(i+1,j) is None  and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de la derecha ({i,j+1})\n"""
+                         
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i+1,j).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+
+
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is None:
+                                costo=costo+pisoElegido.costo_voltear
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                    elif pisoElegido.costo_voltear==pisoelegido.costo_cambiar:
+                        if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j) is not None:
+                            if pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la derecha ({i,j+1})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i+1,j).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+                                x=x+1
+                                continue
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1 and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+
+                        else:
+                            if pisoElegido.Matriz.getNodo(i+1,j) is None  and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i,j+1).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de la derecha ({i,j+1})\n"""
+                         
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==0:
+                                costo=costo+pisoElegido.costo_cambiar
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                pisoElegido.Matriz.getNodo(i+1,j).Estado=1
+                                log+=f"""Se cambió la casilla actual ({i,j}) a la casilla de abajo ({i+1,j})\n"""
+
+
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is not None and pisoElegido.Matriz.getNodo(i+1,j).Estado==1:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i+1,j) is None and pisoElegido.Matriz.getNodo(i,j+1) is not None and pisoElegido.Matriz.getNodo(i,j+1).Estado==1:
+                                costo=costo+pisoElegido.costo_voltear
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                            elif pisoElegido.Matriz.getNodo(i,j+1) is None and pisoElegido.Matriz.getNodo(i+1,j) is None:
+                                costo=costo+pisoElegido.costo_voltear
+                                log+=f"""Se volteó la casilla actual ({i,j})\n"""
+                                pisoElegido.Matriz.getNodo(i,j).Estado=0     
+
                 x=x+1
                 #pisoElegido.Matriz.getNodo(i,j)
-
+        nuevoPatron.Estado=True
+        
+        log+=f"""\nCosto Mínimo: {costo}"""
+        f = open (f'Log_{pisoElegido.nombre}.txt','w',encoding='utf-8')
+        f.write(log)
+        f.close()
+       
 
 
     def graficar_inicial(self,piso):
         pisograf=piso
         texto="""
-        digraph {
+        digraph {"""
+        texto+=f"""
+        label="Nombre: {piso.nombre}"
+        fontname="Arial"
+        bgcolor="#f7f9f9"
         tbl [
         shape=plaintext
         label=<"""
+
         texto+="""
-        <table color='black' border='0' cellborder='1' cellpadding='10' cellspacing='0'>
+        <table color='black' border='0' cellborder='1' cellpadding='13' cellspacing='2'>
         """
         for i in range(pisograf.filas):
             texto+="""<tr>"""
@@ -136,16 +363,54 @@ class Main():
         >];
         }
         """
-
-  
         txt=texto
-        miarchivo=open('grap.dot','w')
+        miarchivo=open('PatronInicial.dot','w')
         miarchivo.write(txt)
         miarchivo.close()
-        system('dot -Tpng grap.dot -o grap.png')
-        system('cd ./grap.png')
-        startfile('grap.png')
+        system('dot -Tpng PatronInicial.dot -o PatronInicial.png')
+        system('cd ./PatronInicial.png')
+        startfile('PatronInicial.png')
     
+    def graficar_final(self,piso,s):
+        pisograf=piso
+        texto="""
+        digraph {"""
+        texto+=f"""
+        label="Nombre: {piso.nombre}\n\n Patron: {s.string_patron}"
+        fontname="Arial"
+        bgcolor="#f7f9f9"
+        tbl [
+        shape=plaintext
+        label=<"""
+
+        texto+="""
+        <table color='black' border='0' cellborder='1' cellpadding='13' cellspacing='2'>
+        """
+        for i in range(pisograf.filas):
+            texto+="""<tr>"""
+            for j in range(pisograf.columnas):
+                if pisograf.Matriz.getNodo(i,j).Estado==1:
+                    texto+=f"""
+                    <td bgcolor='black'></td>
+                    """
+                else:
+                    texto+="""<td bgcolor='white'></td>"""
+            texto+="""</tr>"""
+    
+        texto+="""
+        </table>
+        >];
+        }
+        """
+        txt=texto
+        miarchivo=open('PatronFinal.dot','w')
+        miarchivo.write(txt)
+        miarchivo.close()
+        system('dot -Tpng PatronFinal.dot -o PatronFinal.png')
+        system('cd ./PatronFinal.png')
+        startfile('PatronFinal.png')
+    
+
 
     
 

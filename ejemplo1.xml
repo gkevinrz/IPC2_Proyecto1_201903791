@@ -1,23 +1,23 @@
 <?xml version="1.0"?>
 <pisosArtesanales>
-<piso nombre="ejemplo01">
+<piso nombre="Prueba4">
 <R> 2 </R>
 <C> 4 </C>
 <F> 1 </F>
 <S> 1 </S>
 <patrones>
-<patron codigo="cod11">
+<patron codigo="Rbol">
 WBWBWWWB
 </patron>
-<patron codigo="cod12">
+<patron codigo="Aasa">
 BWBWWWWW
 </patron>
-<patron codigo="cod13">
+<patron codigo="Baro">
 BWBWWBBB
 </patron>
 </patrones>
 </piso>
-<piso nombre="ejemplo02">
+<piso nombre="Prueba1">
 <R> 3 </R>
 <C> 3 </C>
 <F> 1 </F>
@@ -31,7 +31,7 @@ WWWWBWWWB
 </patron>
 </patrones>
 </piso>
-<piso nombre="ejemplo03">
+<piso nombre="Prueba5">
 <R> 1 </R>
 <C> 5 </C>
 <F> 1000 </F>

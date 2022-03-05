@@ -9,3 +9,4 @@ class NodoPosicion():
         self.izquierda=None
         self.arriba=None
         self.abajo=None
+    
